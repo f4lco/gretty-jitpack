@@ -1,0 +1,39 @@
+buildscript {
+  repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+  }
+
+  dependencies {
+    // classpath 'com.github.gretty-gradle-plugin:gretty:v3.0.4'
+    classpath 'com.github.gretty-gradle-plugin:gretty:8dbea32'
+
+    configurations.all {
+      resolutionStrategy {
+        if (org.gradle.util.GradleVersion.current().version.startsWith('7.')) {
+          force "org.spockframework:spock-core:2.0-M5-groovy-3.0"
+          force "org.gebish:geb-spock:5.0-milestone-1"
+        }
+      }
+    }
+  }
+}
+
+apply plugin: 'org.gretty'
+apply plugin: 'war'
+
+repositories {
+  mavenCentral()
+  maven { url 'https://jitpack.io' }
+}
+
+configurations.all {
+  resolutionStrategy {
+    dependencySubstitution.all { dependency ->
+      // see https://docs.gradle.org/current/userguide/resolution_rules.html#sub:conditional_dependency_substitution
+      if (dependency.requested instanceof ModuleComponentSelector && dependency.requested.group == "org.gretty") {
+        dependency.useTarget "com.github.gretty-gradle-plugin.gretty:${dependency.requested.module}:8dbea32"
+      }
+    }
+  }
+}
